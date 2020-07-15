@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:informttrev1/services/authentication.dart';
 
 class LoginSignUpPage extends StatefulWidget {
-  LoginSignUpPage({this.params});
+  LoginSignUpPage({this.params, this.auth, this.onSignedIn});
 
   final Map params;
+  final BaseAuth auth;
+  final VoidCallback onSignedIn;
 
   @override
   State<StatefulWidget> createState() => _LoginSignUpPageState();
@@ -11,7 +14,8 @@ class LoginSignUpPage extends StatefulWidget {
 
 enum FormMode {
   LOGIN,
-  FORGOTPASSWORD
+  FORGOTPASSWORD,
+  SIGNUP
 } //this will be used to change the appearance of the form between login and forgot password. Register has its own page.
 
 class _LoginSignUpPageState extends State<LoginSignUpPage> {
@@ -19,7 +23,6 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  String _email; //may not be required since i am using controllers
   String _errorMessage;
 
   //Initial form will be the login form.
@@ -32,6 +35,59 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     _errorMessage = ''; //No error message initially
     _isLoading = false;
     super.initState();
+  }
+
+  void _showVerifyEmailSentDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Verify your account"),
+          content:
+              new Text("Link to verify account has been sent to your email"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                _changeFormToLogin();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPasswordEmailSentDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Forgot your password"),
+          content: new Text("An email has been sent to reset your password"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                _changeFormToLogin();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _changeFormToSignUp() {
+    _formKey.currentState.reset();
+    _errorMessage = "";
+    setState(() {
+      _formMode = FormMode.SIGNUP;
+    });
   }
 
   void _changeFormToLogin() {
@@ -223,16 +279,13 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               borderRadius: new BorderRadius.circular(30.0)),
           color: widget.params['buttonColor'],
           child: _textLoginButton(),
-          onPressed: () async {
-            if (_formKey.currentState.validate()) {
-              _login();
-            }
-          },
+          onPressed: _validateAndSubmit,
         ),
       ),
     );
   }
 
+/*
   Widget _showRegisterButton() {
     //route to register page.
     if (_formMode != FormMode.FORGOTPASSWORD) {
@@ -256,6 +309,15 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
       );
     }
   }
+*/
+  Widget _showRegisterButton() {
+    return new FlatButton(
+      child: _textSecondaryButton(),
+      onPressed: _formMode == FormMode.LOGIN
+          ? _changeFormToSignUp
+          : _changeFormToLogin,
+    );
+  }
 
   Widget _showForgotPasswordButton() {
     return FlatButton(
@@ -276,6 +338,10 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
         return new Text('Login',
             style: new TextStyle(fontSize: 26.0, color: Colors.white));
         break;
+      case FormMode.SIGNUP:
+        return new Text('Create account',
+            style: new TextStyle(fontSize: 20.0, color: Colors.white));
+        break;
       case FormMode.FORGOTPASSWORD:
         return new Text('Reset password',
             style: new TextStyle(fontSize: 20.0, color: Colors.white));
@@ -289,6 +355,10 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
       case FormMode.LOGIN:
         return Text('Create an account',
             style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600));
+        break;
+      case FormMode.SIGNUP:
+        return new Text('Have an account? Sign in',
+            style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300));
         break;
       case FormMode.FORGOTPASSWORD:
         return new Text('Cancel Password Reset Request.',
@@ -304,4 +374,60 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
   void _register() {}
 
   void _login() {}
+
+  // Check if form is valid before perform login or signup
+  bool _validateAndSave() {
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
+
+// Perform login or signup
+  void _validateAndSubmit() async {
+    setState(() {
+      _errorMessage = "";
+      _isLoading = true;
+    });
+    if (_validateAndSave()) {
+      String userId = "";
+      try {
+        if (_formMode == FormMode.LOGIN) {
+          userId = await widget.auth.signIn(
+              _emailController.text, _passwordController.text);
+        } else if (_formMode == FormMode.SIGNUP) {
+          userId = await widget.auth.signUp(
+              _emailController.text, _passwordController.text);
+          widget.auth.sendEmailVerification();
+          _showVerifyEmailSentDialog();
+        } else {
+          widget.auth.sendPasswordReset(_emailController.text);
+          _showPasswordEmailSentDialog();
+        }
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (userId.length > 0 &&
+            userId != null &&
+            _formMode == FormMode.LOGIN) {
+          widget.onSignedIn();
+        }
+      } catch (e) {
+        print('Error: $e');
+        setState(() {
+          _isLoading = false;
+          _isIos ? _errorMessage = e.details : _errorMessage = e.message;
+        });
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 } //_LoginSignUpPageState
+
+
