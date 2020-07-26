@@ -22,6 +22,8 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmController =
+      TextEditingController();
 
   String _errorMessage;
 
@@ -145,6 +147,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showLogo(),
               _showEmailInput(),
               _showPasswordInput(),
+              _showPasswordConfirmInput(),
               _showLoginButton(),
               _showRegisterButton(),
               _showForgotPasswordButton(),
@@ -188,7 +191,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
         padding: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
-          radius: 100.0,
+          radius: 80.0,
           child: Image.asset('graphics/information.jpg'),
         ),
       ),
@@ -267,10 +270,50 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     }
   }
 
+  // for the password confirmation widget
+  Widget _showPasswordConfirmInput() {
+    if (_formMode == FormMode.SIGNUP) {
+      //normal login will show the password field
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+        child: TextFormField(
+          controller: _passwordConfirmController,
+          maxLines: 1,
+          obscureText: true,
+          autofocus: false,
+          decoration: InputDecoration(
+              labelText: 'Confirm Password.',
+              labelStyle: TextStyle(fontSize: 17.0),
+              icon: Icon(
+                Icons.lock,
+                color: Colors.grey,
+              )),
+          validator: (String value) {
+            value = value.trim(); //removes the white spaces.
+            if (value.isEmpty) {
+              return 'Please re-enter password.';
+            } else if (value.length <= 6) {
+              return 'Password must be more than 6 characters long.';
+            } else if (_passwordController.text !=
+                _passwordConfirmController.text) {
+              return 'Passwords must match!';
+            }
+            return null;
+          },
+        ),
+      );
+    } else if (_formMode == FormMode.FORGOTPASSWORD) {
+      return Text(""); //when in forgot password mode, it is not in use
+    }
+    else {
+      return Text(""); // when in login mode, it is not in use
+    }
+  }
+
   //Now we create the button widgets
   Widget _showLoginButton() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 0.0),
+      padding: EdgeInsets.fromLTRB(0.0, 35.0, 0.0, 20.0),
       child: SizedBox(
         height: 40.0,
         child: RaisedButton(
@@ -285,34 +328,9 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     );
   }
 
-/*
   Widget _showRegisterButton() {
-    //route to register page.
-    if (_formMode != FormMode.FORGOTPASSWORD) {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        alignment: Alignment.center,
-        child: RaisedButton(
-          onPressed: () {
-            _register();
-          },
-          child: const Text(
-            'Create an account.',
-            style: TextStyle(fontSize: 22.0),
-          ),
-        ),
-      );
-    } else {
-      return FlatButton(
-        child: _textSecondaryButton(),
-        onPressed: _changeFormToLogin,
-      );
-    }
-  }
-*/
-  Widget _showRegisterButton() {
-    return new FlatButton(
-      child: _textSecondaryButton(),
+    return new RaisedButton(
+      child: _textRegisterButton(),
       onPressed: _formMode == FormMode.LOGIN
           ? _changeFormToSignUp
           : _changeFormToLogin,
@@ -340,40 +358,37 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
         break;
       case FormMode.SIGNUP:
         return new Text('Create account',
-            style: new TextStyle(fontSize: 20.0, color: Colors.white));
+            style: new TextStyle(fontSize: 26.0, color: Colors.white));
         break;
       case FormMode.FORGOTPASSWORD:
         return new Text('Reset password',
-            style: new TextStyle(fontSize: 20.0, color: Colors.white));
+            style: new TextStyle(fontSize: 26.0, color: Colors.white));
         break;
     }
     return Spacer();
   }
 
-  Widget _textSecondaryButton() {
+  Widget _textRegisterButton() {
     switch (_formMode) {
       case FormMode.LOGIN:
         return Text('Create an account',
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600));
+            style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.w600));
         break;
       case FormMode.SIGNUP:
-        return new Text('Have an account? Sign in',
-            style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300));
+        return
+          Text('Have an account? Sign in',
+              style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600));
         break;
       case FormMode.FORGOTPASSWORD:
-        return new Text('Cancel Password Reset Request.',
+        return Text('Cancel Password Reset Request.',
             style: TextStyle(
-                fontSize: 18.0,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w600,
                 fontStyle: FontStyle.italic));
         break;
     }
     return Spacer();
   }
-
-  void _register() {}
-
-  void _login() {}
 
   // Check if form is valid before perform login or signup
   bool _validateAndSave() {
