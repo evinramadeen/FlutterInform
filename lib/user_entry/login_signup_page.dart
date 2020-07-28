@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:informttrev1/services/authentication.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   LoginSignUpPage({this.params, this.auth, this.onSignedIn});
@@ -151,6 +152,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showLoginButton(),
               _showRegisterButton(),
               _showForgotPasswordButton(),
+              _showGoogleLoginButton(), //this will be used to login to google.
               _showErrorMessage(),
             ],
           ),
@@ -188,7 +190,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     return new Hero(
       tag: 'hero',
       child: Padding(
-        padding: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
+        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
           radius: 80.0,
@@ -350,6 +352,58 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     );
   }
 
+  /*
+  Widget _showGoogleLoginButton(){
+    return OutlineButton(
+      splashColor: Colors.grey,
+      onPressed: _signInWithGoogle,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+      highlightElevation: 0,
+      borderSide: BorderSide(color:widget.params['buttonColor']),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image(image: AssetImage("graphics/google_logo.png"), height: 35.0),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0.0,5.0,0.0,0.0),
+              child: Text(
+                'Sign in with Google',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: widget.params['buttonColor'],
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }*/
+
+  Widget _showGoogleLoginButton() {
+    if (_formMode == FormMode.LOGIN) {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(0.0, 35.0, 0.0, 20.0),
+        child: SizedBox(
+          height: 40.0,
+          child: RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(30.0)),
+            color: widget.params['buttonColor'],
+            child: Text("Login using your Google Account."),
+            onPressed: _signInWithGoogle,
+          ),
+        ),
+      );
+    } else {
+      return Text("");
+    }
+  }
+
   Widget _textLoginButton() {
     switch (_formMode) {
       case FormMode.LOGIN:
@@ -440,6 +494,32 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     } else {
       setState(() {
         _isLoading = false;
+      });
+    }
+  }
+
+  void _signInWithGoogle() async {
+    setState(() {
+      _errorMessage = "";
+      _isLoading = true;
+    });
+    String userId = "";
+    try {
+      userId = await widget.auth.signInWithGoogle();
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (userId.length > 0 &&
+          userId != null &&
+          _formMode == FormMode.LOGIN) {
+        widget.onSignedIn();
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        _isLoading = false;
+        _isIos ? _errorMessage = e.details : _errorMessage = e.message;
       });
     }
   }

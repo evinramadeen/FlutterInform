@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
     _isEmailVerified = await widget.auth.isEmailVerified();
     if (!_isEmailVerified) {
       _showVerifyEmailDialog(); //if email not verified, let them know they need to verify before proceeding
+      _signOut(); //this makes sure the user cannot sign in if the email is not verified.
     }
   }
 
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
           return AlertDialog(
             title: Text('Verify your account.'),
             content: Text(
-                'Please verify your account by clicking on the link sent to your email address.'),
+                'Please verify your account by clicking on the link sent to your email address then sign in.'),
             actions: <Widget>[
               FlatButton(
                 child: Text('Resend verification email'),
@@ -131,7 +132,7 @@ class _HomePageState extends State<HomePage> {
         actions: <Widget>[
           FlatButton(
               child: Text('Logout',
-                  style: TextStyle(fontSize: 17.0, color: Colors.green)),
+                  style: TextStyle(fontSize: 17.0, color: Colors.black)),
               onPressed: _signOut //add the logout functionality here
           )
         ],
