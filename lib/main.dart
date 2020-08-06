@@ -14,12 +14,12 @@ class MyApp extends StatelessWidget {
   static const buttonColor = Colors.blue;
 
   //boolean for showing if the user is logged in.
-  static const userVerified = false; //monitor this
+  static const homePageUnverified = false; //monitor this
 
   final params = {
     'appName': appName,
     'primarySwatch': primarySwatch,
-    'userVerified': userVerified,
+    'homePageUnverified': homePageUnverified,
     'buttonColor': buttonColor,
   };
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:informttrev1/services/authentication.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   LoginSignUpPage({this.params, this.auth, this.onSignedIn});
@@ -153,6 +152,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showRegisterButton(),
               _showForgotPasswordButton(),
               _showGoogleLoginButton(), //this will be used to login to google.
+              _showFbLoginButton(),
               _showErrorMessage(),
             ],
           ),
@@ -404,6 +404,27 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     }
   }
 
+  Widget _showFbLoginButton() {
+    if (_formMode == FormMode.LOGIN) {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(0.0, 35.0, 0.0, 20.0),
+        child: SizedBox(
+          height: 40.0,
+          child: RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(30.0)),
+            color: widget.params['buttonColor'],
+            child: Text("Login using Facebook."),
+            onPressed: _signInWithFacebook,
+          ),
+        ),
+      );
+    } else {
+      return Text("");
+    }
+  }
+
   Widget _textLoginButton() {
     switch (_formMode) {
       case FormMode.LOGIN:
@@ -506,6 +527,32 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     String userId = "";
     try {
       userId = await widget.auth.signInWithGoogle();
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (userId.length > 0 &&
+          userId != null &&
+          _formMode == FormMode.LOGIN) {
+        widget.onSignedIn();
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        _isLoading = false;
+        _isIos ? _errorMessage = e.details : _errorMessage = e.message;
+      });
+    }
+  }
+
+  void _signInWithFacebook() async {
+    setState(() {
+      _errorMessage = "";
+      _isLoading = true;
+    });
+    String userId = "";
+    try {
+      userId = await widget.auth.signInWithFacebook();
       setState(() {
         _isLoading = false;
       });

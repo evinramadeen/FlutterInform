@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">informTTRev1</string>
     <string name="facebook_app_id">219237502666399</string>
     <string name="fb_login_protocol_scheme">fb219237502666399</string>
 

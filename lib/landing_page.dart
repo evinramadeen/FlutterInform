@@ -1,14 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:informttrev1/services/authentication.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.params, this.auth, this.userId, this.onSignedOut})
+  HomePage(
+      {Key key,
+      this.params,
+      this.auth,
+      this.userId,
+      this.userEmail,
+      this.userName,
+      this.onSignedOut})
       : super(key: key);
 
   final Map params; //this is passed in data
   final BaseAuth auth;
   final VoidCallback onSignedOut;
   final String userId;
+  final String userEmail;
+  final String userName;
 
   @override
   State<StatefulWidget> createState() => _HomePageState();
@@ -113,7 +123,7 @@ class _HomePageState extends State<HomePage> {
     //will put my list of main categories around here.
     return Center(
       child: Text(
-        "Welcome to the main Screen",
+        "Welcome to the main Screen " + widget.userName,
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 30.0),
       ),

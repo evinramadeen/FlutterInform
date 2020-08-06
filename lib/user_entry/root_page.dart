@@ -25,6 +25,8 @@ enum AuthStatus {
 class _RootPageState extends State<RootPage> {
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
+  String _userEmail = "";
+  String _userName = "";
 
   @override
   void initState() {
@@ -45,6 +47,8 @@ class _RootPageState extends State<RootPage> {
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         _userId = user.uid.toString(); //get current user if logged in
+        _userEmail = user.email.toString();
+        _userName = user.displayName.toString();
       });
     });
     setState(() {
@@ -56,6 +60,8 @@ class _RootPageState extends State<RootPage> {
     setState(() {
       authStatus = AuthStatus.NOT_LOGGED_IN;
       _userId = ""; //clear the user ID
+      _userEmail = "";
+      _userName = "";
     });
   }
 
@@ -74,8 +80,6 @@ class _RootPageState extends State<RootPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: Show the login or home page depending on user login state
-    const bool showLogin =
-    true; //a place holder until i put the code to test if user is logged in
 
     switch (authStatus) {
       case AuthStatus.NOT_LOGGED_IN:
@@ -89,6 +93,8 @@ class _RootPageState extends State<RootPage> {
         if (_userId.length > 0 && _userId != null) {
           return new HomePage(
             userId: _userId,
+            userEmail: _userEmail,
+            userName: _userName,
             auth: widget.auth,
             onSignedOut: _onSignedOut,
             params: widget.params,
