@@ -138,7 +138,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
 
   Widget _showBody() {
     return Container(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(10.0),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -203,7 +203,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
   //The email Text Form Field
   Widget _showEmailInput() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 60.0, 0.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
       child: TextFormField(
         controller: _emailController,
         maxLines: 1,
@@ -305,10 +305,13 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
         ),
       );
     } else if (_formMode == FormMode.FORGOTPASSWORD) {
-      return Text(""); //when in forgot password mode, it is not in use
-    }
-    else {
-      return Text(""); // when in login mode, it is not in use
+      return Container(
+        height: 0.0, //basically an empty space.
+      );
+    } else {
+      return Container(
+        height: 0.0, //basically an empty space.
+      );
     }
   }
 
@@ -386,7 +389,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
   Widget _showGoogleLoginButton() {
     if (_formMode == FormMode.LOGIN) {
       return Padding(
-        padding: EdgeInsets.fromLTRB(0.0, 35.0, 0.0, 20.0),
+        padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
         child: SizedBox(
           height: 40.0,
           child: RaisedButton(
@@ -394,7 +397,8 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
             shape: new RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             color: widget.params['buttonColor'],
-            child: Text("Login using your Google Account."),
+            child: Text(
+                "Login using Google.", style: TextStyle(fontSize: 20.0)),
             onPressed: _signInWithGoogle,
           ),
         ),
@@ -415,7 +419,8 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
             shape: new RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             color: widget.params['buttonColor'],
-            child: Text("Login using Facebook."),
+            child: Text(
+                "Login using Facebook.", style: TextStyle(fontSize: 20.0)),
             onPressed: _signInWithFacebook,
           ),
         ),
