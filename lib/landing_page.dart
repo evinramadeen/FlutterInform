@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:informttrev1/services/authentication.dart';
+import 'package:informttrev1/information/main_categories.dart';
 
 class HomePage extends StatefulWidget {
   HomePage(
@@ -121,13 +122,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _mainScreen() {
     //will put my list of main categories around here.
-    return Center(
-      child: Text(
-        "Welcome to the main Screen " + widget.userName,
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 30.0),
-      ),
-    );
+    return MainCategoriesPage(
+        params: widget
+            .params); // May just go to a new page in which case i would need to include logout in appbar
   }
 
   @override
